@@ -1,0 +1,26 @@
+2
+5 2
+0 100
+0 100
+10 3
+0 50
+0 50
+0 50
+
+
+В первой строке указано количество классов — 2.
+Для каждого класса:
+В первой строке указано количество точек и размерность пространства (например, 5 2 — 5 точек в 2D пространстве).
+Далее идут диапазоны для каждой координаты: минимальное и максимальное значения.
+Для первого класса: диапазоны для X и Y координат от 0 до 100.
+Для второго класса: диапазоны для X, Y и Z координат от 0 до 50.
+
+1.
+Алгоритм НСКО (алгоритм Хо Кашьяпа ) https://habr.com/ru/articles/312600/
+2.
+Зачем нужен алгоритм Хо Кашьяпа ? https://habr.com/ru/articles/312774/
+3.
+Code | Linear classifier: batch perception algorithm + Ho_Kashyap algorithm (two classification) + MSE
+multi class extension https://www.programmersought.com/article/96347561640/
+4.
+https://github.com/lkj8389/PR impwork/blob/master/Pc%20imp python/Ho Kashyap.ipynb

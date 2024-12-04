@@ -1,0 +1,345 @@
+№1
+С++
+____________________________________________________
+    #include <iostream>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+//Класс Point: представляет собой точку в заданном пространстве, проверяет, чтобы все координаты были положительными.
+class Point {
+public:
+    Point(const std::vector<double>& coordinates) : coordinates(coordinates) {
+        for (double coord : coordinates) {
+            if (coord < 0) {
+                throw std::invalid_argument("Coordinates must be positive.");
+            }
+        }
+    }
+    
+    const std::vector<double>& getCoordinates() const {
+        return coordinates;
+    }
+    
+private:
+    std::vector<double> coordinates;
+};
+//Класс Class: представляет класс (пространство) и генерирует заданное количество точек с случайными положительными координатами.
+class Class {
+public:
+    Class(int numDimensions, int numPoints) : numDimensions(numDimensions) {
+        generatePoints(numPoints);
+    }
+    
+    void generatePoints(int numPoints) {
+        for (int i = 0; i < numPoints; ++i) {
+            std::vector<double> coords(numDimensions);
+            for (int j = 0; j < numDimensions; ++j) {
+                // Сгенерируем случайные положительные значения для координат
+                coords[j] = static_cast<double>(rand() % 100 + 1); // Значения от 1 до 100
+            }
+            points.emplace_back(coords);
+        }
+    }
+    
+    const std::vector<Point>& getPoints() const {
+        return points;
+    }
+    
+private:
+    int numDimensions;
+    std::vector<Point> points;
+};
+
+class Space {
+public:
+    Space(const std::string& inputFile, const std::string& outputFile) {
+        readFile(inputFile);
+        writeToFile(outputFile);
+    }
+    
+    void readFile(const std::string& inputFile) {
+        std::ifstream inFile(inputFile);
+        if (!inFile.is_open()) {
+            throw std::runtime_error("Failed to open input file.");
+        }
+        
+        int numClasses;
+        inFile >> numClasses;
+        
+        for (int i = 0; i < numClasses; ++i) {
+            int numPoints, numDimensions;
+            inFile >> numPoints >> numDimensions;
+            classes.emplace_back(numDimensions, numPoints);
+        }
+        
+        inFile.close();
+    }
+    
+    void writeToFile(const std::string& outputFile) {
+        std::ofstream outFile(outputFile);
+        if (!outFile.is_open()) {
+            throw std::runtime_error("Failed to open output file.");
+        }
+        
+        for (const auto& cls : classes) {
+            for (const auto& point : cls.getPoints()) {
+                const auto& coords = point.getCoordinates();
+                for (size_t i = 0; i < coords.size(); ++i) {
+                    outFile << coords[i];
+                    if (i < coords.size() - 1) {
+                        outFile << " "<<std::endl;
+                    }
+                }
+                outFile << ',';
+            }
+        }
+        
+        outFile.close();
+    }
+    
+private:
+    std::vector<Class> classes;
+};
+
+int main() {
+    try {
+        Space space("input.txt", "output.txt");
+        std::cout << "Points successfully generated and written to output.txt" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+
+
+    system("grap.py");
+
+
+    return 0;
+}
+____________________________________________
+python
+
+
+_________________________________________
+import matplotlib.pyplot as plt
+
+# Функция для загрузки данных из файла
+def load_data(filename):
+    x = []    
+    y = []
+    with open(filename, 'r') as file:
+        for line in file:
+            # Удаляем пробелы и разделяем координаты
+            coords = line.strip().split(',')
+            if len(coords) == 2:
+                x.append(float(coords[0]))  # Добавляем координату X
+                y.append(float(coords[1]))  # Добавляем координату Y
+    return x, y
+
+# Загружаем данные
+filename = 'C:\\Users\\rosti\\Documents\\3 курс\\MRO_viim31_Laschunov\src\output.txt'
+x, y = load_data(filename)
+
+# Создаем график
+plt.scatter(x, y)  # Отображаем точки
+plt.title('График точек из файла')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.grid(True)
+plt.show()  # Показываем график
+
+
+___________________________________
+
+
+
+Рабочая версия с реализацией классов и пространств
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+#include <ctime>
+#include <cstdlib>
+
+// Класс Point: представляет собой точку в заданном пространстве, проверяет, чтобы все координаты были в заданном диапазоне.
+class Point {
+public:
+    Point(const std::vector<double>& coordinates) : coordinates(coordinates) {}
+
+    const std::vector<double>& getCoordinates() const {
+        return coordinates;
+    }
+
+private:
+    std::vector<double> coordinates; 
+};
+
+// Класс Class: представляет класс (пространство) и генерирует заданное количество точек с случайными координатами в диапазоне.
+class Class {
+public:
+    Class(int numDimensions, int numPoints, const std::vector<std::pair<double, double>>& ranges) 
+        : numDimensions(numDimensions), ranges(ranges) {
+        generatePoints(numPoints);
+    }
+
+    void generatePoints(int numPoints) {
+        for (int i = 0; i < numPoints; ++i) {
+            std::vector<double> coords(numDimensions);
+            for (int j = 0; j < numDimensions; ++j) {
+                // Сгенерируем случайные значения для координат в заданном диапазоне
+                double range_min = ranges[j].first;
+                double range_max = ranges[j].second;
+                coords[j] = range_min + static_cast<double>(rand()) / RAND_MAX * (range_max - range_min);
+            }
+            points.emplace_back(coords);
+        }
+    }
+
+    const std::vector<Point>& getPoints() const {
+        return points;
+    }
+
+private:
+    int numDimensions;
+    std::vector<Point> points;
+    std::vector<std::pair<double, double>> ranges; // Диапазоны для каждой координаты
+};
+
+// Класс Space: читает данные из input-файла и записывает сгенерированные точки в output-файл.
+class Space {
+public:
+    Space(const std::string& inputFile, const std::string& outputFile) {
+        readFile(inputFile);
+        writeToFile(outputFile);
+    }
+
+    void readFile(const std::string& inputFile) {
+        std::ifstream inFile(inputFile);
+        if (!inFile.is_open()) {
+            throw std::runtime_error("Failed to open input file.");
+        } 
+
+        int numClasses;
+        inFile >> numClasses;
+
+        for (int i = 0; i < numClasses; ++i) {
+            int numPoints, numDimensions;
+            inFile >> numPoints >> numDimensions;
+
+            // Читаем диапазоны для каждой координаты
+            std::vector<std::pair<double, double>> ranges(numDimensions);
+            for (int j = 0; j < numDimensions; ++j) {
+                double minRange, maxRange;
+                inFile >> minRange >> maxRange;
+                ranges[j] = {minRange, maxRange};
+            }
+
+            classes.emplace_back(numDimensions, numPoints, ranges);
+        }
+
+        inFile.close();
+    }
+
+    void writeToFile(const std::string& outputFile) {
+        std::ofstream outFile(outputFile);
+        if (!outFile.is_open()) {
+            throw std::runtime_error("Failed to open output file.");
+        }
+
+        for (const auto& cls : classes) {
+            for (const auto& point : cls.getPoints()) {
+                const auto& coords = point.getCoordinates();
+                for (size_t i = 0; i < coords.size(); ++i) {
+                    outFile << coords[i];
+                    if (i < coords.size() - 1) {
+                        outFile << " ";
+                    }
+                }
+                outFile << "\n";
+            }
+            outFile << "\n"; // Разделитель между классами
+        }
+
+        outFile.close();
+    }
+
+private:
+    std::vector<Class> classes;
+};
+
+int main() {
+    srand(static_cast<unsigned int>(time(0)));
+
+    try {
+        Space space("input.txt", "output.txt");
+        std::cout << "Points successfully generated and written to output.txt" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+
+    return 0;
+}
+
+ПИТОН
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+def load_points(file_name):
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+    
+    points = []
+    current_space = []
+    for line in lines:
+        line = line.strip()
+        if line:
+            coords = list(map(float, line.split()))
+            current_space.append(coords)
+        else:
+            points.append(current_space)
+            current_space = []
+    
+    if current_space:
+        points.append(current_space)
+    
+    return points
+
+def visualize_2d(points):
+    for space in points:
+        x_vals = [p[0] for p in space]
+        y_vals = [p[1] for p in space]
+        plt.scatter(x_vals, y_vals)
+    plt.title('2D Space Visualization')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.show()
+
+def visualize_3d(points):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    for space in points:
+        x_vals = [p[0] for p in space]
+        y_vals = [p[1] for p in space]
+        z_vals = [p[2] for p in space] if len(space[0]) == 3 else [0] * len(space)
+        ax.scatter(x_vals, y_vals, z_vals)
+    ax.set_title('3D Space Visualization')
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    plt.show()
+
+if __name__ == "__main__":
+    points = load_points("output.txt")
+
+    if len(points[0][0]) == 2:
+        visualize_2d(points)
+    elif len(points[0][0]) == 3:
+        visualize_3d(points)
+____________________________________________________
+
+
+
+
+
+
